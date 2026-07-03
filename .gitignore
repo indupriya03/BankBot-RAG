@@ -216,3 +216,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.DS_Store
+data/.DS_Store
+
+# DVC managed data (tracked by DVC, not git)
+data/raw/
+data/cleaned/
+data/processed/
+
+# ML models and vector store (large files)
+models/
+vector_store/
+
+# MLflow
+mlruns/
+mlflow.db
