@@ -232,3 +232,4 @@ vector_store/
 mlruns/
 mlflow.db
 .vscode/
+extras/
