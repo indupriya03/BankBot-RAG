@@ -231,3 +231,4 @@ vector_store/
 # MLflow
 mlruns/
 mlflow.db
+.vscode/
