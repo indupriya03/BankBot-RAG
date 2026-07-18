@@ -13,8 +13,8 @@ stages:
       size: 225578
     - path: data/raw/04_qa_pairs.json
       hash: md5
-      md5: 8614e6e01020c88a2df612e63bf39d29
-      size: 10816
+      md5: fc249b243d3d5a6bf9745fe65d7ea12e
+      size: 11465
     - path: data/raw/policy_docs
       hash: md5
       md5: de403d584c474208c79c9b934a84cb0e.dir
@@ -35,8 +35,8 @@ stages:
       size: 223577
     - path: data/cleaned/04_qa_pairs_cleaned.json
       hash: md5
-      md5: 8614e6e01020c88a2df612e63bf39d29
-      size: 10816
+      md5: d4bc0fc644e32d9d8d62d8a20070bbd3
+      size: 11473
     - path: data/cleaned/policy_docs
       hash: md5
       md5: ed3bd80df1da563931bcb920d69cbd1c.dir
@@ -99,8 +99,8 @@ stages:
     deps:
     - path: data/cleaned/04_qa_pairs_cleaned.json
       hash: md5
-      md5: 8614e6e01020c88a2df612e63bf39d29
-      size: 10816
+      md5: d4bc0fc644e32d9d8d62d8a20070bbd3
+      size: 11473
     - path: data/cleaned/policy_docs
       hash: md5
       md5: ed3bd80df1da563931bcb920d69cbd1c.dir
@@ -121,12 +121,12 @@ stages:
       size: 18849
     - path: data/preprocessed/qa_chunks.json
       hash: md5
-      md5: 607c6639a8d639122dde075155d76998
-      size: 12836
+      md5: 81777c6abf1801eaa93006826d0df3e3
+      size: 13594
     - path: data/preprocessed/rag_master_chunks.json
       hash: md5
-      md5: d9818be76fdeddb390d435e27c96e0b6
-      size: 31683
+      md5: 15b88a24bb3f9ae2a4fcba36bbedcca5
+      size: 32441
   evaluate_nlp:
     cmd: python src/nlp/evaluate_nlp.py --eval-file 
       data/preprocessed/tickets_eval_unique.csv
@@ -340,8 +340,8 @@ stages:
     deps:
     - path: data/preprocessed/rag_master_chunks.json
       hash: md5
-      md5: d9818be76fdeddb390d435e27c96e0b6
-      size: 31683
+      md5: 15b88a24bb3f9ae2a4fcba36bbedcca5
+      size: 32441
     - path: src/rag/build_vector_store.py
       hash: md5
       md5: beddadf87219eabc7e2e5022e81a667d
@@ -358,8 +358,8 @@ stages:
     outs:
     - path: data/vector_store/chroma_db
       hash: md5
-      md5: 3653db1049300152edec1bd7995ea7f2.dir
-      size: 981156
+      md5: 4ffedecaa0c984624163c9cbedd1426e.dir
+      size: 977060
       nfiles: 5
   evaluate_retrieval:
     cmd: python src/eval/eval_retrieval.py --golden src/eval/golden_queries.json
@@ -367,8 +367,8 @@ stages:
     deps:
     - path: data/vector_store/chroma_db
       hash: md5
-      md5: de4656d73934f017071c237363b9b486.dir
-      size: 981156
+      md5: 109c1b1f5769598e4f2cf7d7e9cd3987.dir
+      size: 977060
       nfiles: 5
     - path: src/eval/eval_retrieval.py
       hash: md5
