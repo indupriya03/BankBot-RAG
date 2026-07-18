@@ -2,10 +2,11 @@
 intent_classifier.py
 ────────────────────
 Intent Classification for BankBot-RAG.
-Uses distilbert-base-uncased-mnli for zero-shot classification.
+Uses facebook/bart-large-mnli for zero-shot classification.
 Labels: Fraud/Unauthorized, Loan, KYC, Account Access
 """
-
+from dotenv import load_dotenv
+load_dotenv()
 import logging
 from transformers import pipeline
 
@@ -13,29 +14,31 @@ log = logging.getLogger(__name__)
 
 # ── Labels ────────────────────────────────────────────────────────────────────
 INTENT_LABELS = [
-    "The customer is reporting a fraudulent or unauthorized transaction or payment",
-    "The customer is asking about a loan application, loan status or loan repayment",
-    "The customer has a KYC verification issue or needs to upload identity documents",
-    "The customer cannot access their bank account or is locked out",
-] 
-
+    "a fraudulent or unauthorized transaction or suspicious payment",
+    "a loan application, loan status or loan repayment",
+    "a KYC verification issue or identity document upload",
+    "unable to log in, forgotten password, account locked, OTP verification issue, "
+    "or a general account servicing request such as balance, credits, transfers, "
+    "or account maintenance",
+]
 INTENT_MAP = {
-    "The customer is reporting a fraudulent or unauthorized transaction or payment" : "Fraud/Unauthorized",
-    "The customer is asking about a loan application, loan status or loan repayment"        : "Loan",
-    "The customer has a KYC verification issue or needs to upload identity documents"            : "KYC",
-    "The customer cannot access their bank account or is locked out"            : "Account Access",
+    "a fraudulent or unauthorized transaction or suspicious payment" : "Fraud/Unauthorized",
+    "a loan application, loan status or loan repayment"   : "Loan",
+    "a KYC verification issue or identity document upload": "KYC",
+    "unable to log in, forgotten password, account locked, OTP verification issue, "
+    "or a general account servicing request such as balance, credits, transfers, "
+    "or account maintenance": "Account Access",
 }
-
 # ── Model (lazy load) ─────────────────────────────────────────────────────────
 _classifier = None
 
 def _get_classifier():
     global _classifier
     if _classifier is None:
-        log.info("Loading intent classifier (distilbert-base-uncased-mnli)...")
+        log.info("Loading intent classifier (facebook/bart-large-mnli)...")
         _classifier = pipeline(
             "zero-shot-classification",
-            model="typeform/distilbert-base-uncased-mnli",
+            model="facebook/bart-large-mnli",
             device=-1,
         )
         log.info("Intent classifier loaded ✅")
@@ -65,8 +68,12 @@ def classify_intent(query_text: str) -> dict:
         }
 
     classifier = _get_classifier()
-    result = classifier(query_text, INTENT_LABELS, multi_label=False)
-
+    result = classifier(
+        query_text,
+        INTENT_LABELS,
+        hypothesis_template="This banking support request is about {}",
+        multi_label=False
+    )
     all_scores = {
         INTENT_MAP[label]: round(score, 4)
         for label, score in zip(result["labels"], result["scores"])
@@ -92,6 +99,8 @@ if __name__ == "__main__":
         "My loan application has been pending for 3 weeks",
         "I cannot upload my KYC documents",
         "I am locked out of my account",
+        "I can't log into my account, it keeps saying invalid password",
+        "looking to increase my loan amount, is that possible mid-term",
     ]
 
     print("\n" + "=" * 60)

@@ -3,7 +3,6 @@ data_cleaning.py
 ────────────────
 Cleaning pipeline for BankBot-RAG datasets.
 Reads from data/raw/, validates, cleans, saves to data/cleaned/.
-Called by pipeline.py — can also be run standalone for testing.
 """
 
 import json
@@ -47,7 +46,7 @@ def _standardise_case(df: pd.DataFrame, cols: list) -> pd.DataFrame:
 
     for col in cols:
         if col in df.columns:
-            df[col] = df[col].str.strip().str.title()
+            df[col] = df[col].str.title()
             for wrong, correct in ACRONYMS.items():
                 df[col] = df[col].str.replace(
                     wrong, correct, regex=False
@@ -332,8 +331,7 @@ def clean_policy_docs(policy_dir: str, output_dir: Path) -> dict:
 
 if __name__ == "__main__":
     log.info("Running data_cleaning.py in standalone mode")
-    print("CWD:", os.getcwd())
-
+    
     cleaned_dir = Path("data/cleaned")
     cleaned_dir.mkdir(parents=True, exist_ok=True)
 

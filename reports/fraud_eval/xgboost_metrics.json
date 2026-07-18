@@ -1,0 +1,24 @@
+{
+  "model": "xgboost",
+  "threshold": 0.5,
+  "precision": 0.6785714285714286,
+  "recall": 0.7755102040816326,
+  "f1": 0.7238095238095238,
+  "roc_auc": 0.9486598058026628,
+  "pr_auc": 0.865524635755636,
+  "n_test": 400,
+  "test_fraud_rate": 0.1225,
+  "risk_tier_validation": {
+    "mean": {
+      "Low": 0.02727272727272727,
+      "Medium": 0.1111111111111111,
+      "High": 0.8604651162790697
+    },
+    "count": {
+      "Low": 330,
+      "Medium": 27,
+      "High": 43
+    }
+  },
+  "note": "Evaluated on transactions_test.csv (real, untouched distribution)."
+}

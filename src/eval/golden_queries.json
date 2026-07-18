@@ -1,0 +1,100 @@
+{
+  "_readme": "Each entry is one gold-labeled query. gold_chunk_ids = the chunk_id(s) a correct retrieval MUST include. gold_type = 'qa' or 'policy'. 'confidence' notes whether this is an exact match or a reasonable-but-partial one (see notes). Entries here were labeled by reading the actual resolution_text against real retrieved chunk content -- not guessed. See coverage_gaps.md in the same folder for 16 additional real customer queries that currently have NO matching chunk in the knowledge base; those are a data coverage finding, not something to force-label.",
+
+  "queries": [
+    {
+      "query": "What are the requirements for a car loan?",
+      "gold_chunk_ids": ["loan_processing_policy_chunk_001"],
+      "gold_type": "policy",
+      "intent": "Loan",
+      "confidence": "exact"
+    },
+    {
+      "query": "I see a transaction I didn't make",
+      "gold_chunk_ids": ["qa_QA001"],
+      "gold_type": "qa",
+      "intent": "Fraud/Unauthorized",
+      "confidence": "exact"
+    },
+    {
+      "query": "How do I check my loan application status?",
+      "gold_chunk_ids": ["qa_QA009"],
+      "gold_type": "qa",
+      "intent": "Loan",
+      "confidence": "partial",
+      "note": "No QA pair exists for a generic status check; qa_QA009 (rejection reasons) is the closest real answer."
+    },
+    {
+      "query": "My salary credit is delayed by 3 days",
+      "gold_chunk_ids": ["qa_QA016"],
+      "gold_type": "qa",
+      "intent": "Account Access",
+      "confidence": "exact"
+    },
+    {
+      "query": "I'm unable to login to my net banking account",
+      "gold_chunk_ids": ["qa_QA015"],
+      "gold_type": "qa",
+      "intent": "Account Access",
+      "confidence": "exact"
+    },
+    {
+      "query": "Multiple small transactions from my account I don't recognize",
+      "gold_chunk_ids": ["qa_QA004"],
+      "gold_type": "qa",
+      "intent": "Fraud/Unauthorized",
+      "confidence": "exact"
+    },
+    {
+      "query": "I can't link my Aadhaar due to name mismatch",
+      "gold_chunk_ids": ["qa_QA012"],
+      "gold_type": "qa",
+      "intent": "KYC",
+      "confidence": "exact"
+    },
+    {
+      "query": "I can't complete video KYC — the link keeps failing",
+      "gold_chunk_ids": ["qa_QA020"],
+      "gold_type": "qa",
+      "intent": "KYC",
+      "confidence": "exact"
+    },
+    {
+      "query": "My account is frozen because of KYC but I submitted documents",
+      "gold_chunk_ids": ["qa_QA011"],
+      "gold_type": "qa",
+      "intent": "KYC",
+      "confidence": "exact"
+    },
+    {
+      "query": "I applied for a business loan 3 weeks ago and heard nothing",
+      "gold_chunk_ids": ["loan_processing_policy_chunk_002"],
+      "gold_type": "policy",
+      "intent": "Loan",
+      "confidence": "exact"
+    },
+    {
+      "query": "Why was my loan application rejected?",
+      "gold_chunk_ids": ["qa_QA009"],
+      "gold_type": "qa",
+      "intent": "Loan",
+      "confidence": "exact"
+    },
+    {
+      "query": "My company account KYC documents were submitted but account is still restricted",
+      "gold_chunk_ids": ["qa_QA011", "kyc_policy_chunk_001"],
+      "gold_type": "qa+policy",
+      "intent": "KYC",
+      "confidence": "corrected",
+      "note": "Originally labeled qa_QA011 only (partial match, since it's about individual not corporate KYC). Full-corpus check (not just top-5) found kyc_policy_chunk_001 section 2.2, which lists the actual corporate document requirements (board resolution, MCA filings) matching this ticket's resolution -- and this chunk did NOT appear in the original top-5 retrieval. This is a genuine recall miss the top-5-only labeling method couldn't have caught."
+    },
+    {
+      "query": "What is the status of my home loan application #TKT128276?",
+      "gold_chunk_ids": ["qa_QA007"],
+      "gold_type": "qa",
+      "intent": "Loan",
+      "confidence": "partial",
+      "note": "Answers loan timeline, not literally a status-tracking question, but same underlying intent."
+    }
+  ]
+}

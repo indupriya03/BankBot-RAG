@@ -1,0 +1,13 @@
+{
+  "intent": {
+    "accuracy": 0.8939393939393939,
+    "macro_f1": 0.8455179900744417,
+    "weighted_f1": 0.885124821415144,
+    "avg_confidence": 0.7059484848484848,
+    "n_samples": 66
+  },
+  "sentiment": {
+    "note": "Evaluation skipped \u2014 53% label inconsistency in synthetic data",
+    "approach": "zero-shot bart-large-mnli, 3 classes at inference time"
+  }
+}

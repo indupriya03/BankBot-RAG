@@ -1,0 +1,62 @@
+# params.yaml
+# ─────────────────────────────────────────────────────────────
+# BankBot-RAG — Pipeline Parameters
+# Referenced by dvc.yaml stages via `params:`, and read directly at
+# runtime by the corresponding scripts. Change a value here and both
+# `dvc repro` and the actual running code pick it up — no hardcoded
+# duplicates left in the pipeline or serving code.
+# ─────────────────────────────────────────────────────────────
+
+fraud_classifier:
+  random_state: 42
+  # Model-specific hyperparameters (n_estimators, max_depth, etc.) still
+  # live inside train_model.py's get_model() — each of the 4 models has
+  # different values, so only random_state is shared across all 4.
+  # Training data is SMOTE-balanced to 50/50 before fitting, which is why
+  # scale_pos_weight=1 in the model configs, not the raw class-imbalance ratio.
+
+risk_thresholds:
+  high: 0.70     # predicted fraud probability >= this -> "High" risk tier
+  medium: 0.30   # >= this (and < high) -> "Medium" risk tier
+  # Single source of truth for both evaluate_model.py and
+  # transaction_risk_lookup.py, so training-time and live-inference risk
+  # tiers can never drift apart.
+
+rag:
+  chunk_size: 1500              # chars, RecursiveCharacterTextSplitter
+  overlap: 200                  # chars
+  top_k: 5
+  embedding_model: "gemini-embedding-001"
+  embedding_output_dim: 768
+  embedding_batch_size: 100
+  min_policy_results: 1
+
+fraud_smote:
+  k_neighbors: 5
+
+data:
+  transactions_test_size: 0.20
+  transactions_random_state: 42
+  # No split ratio for tickets/NLP — preprocessing_tickets.py has no
+  # train_test_split at all. It only deduplicates for an eval set; intent
+  # classification is zero-shot (bart-large-mnli), so there's no training
+  # step to split data for.
+
+tickets_preprocessing:
+  light_clean_only: true
+  # True = strip HTML/URLs only, preserve case/punctuation (current
+  # default — NLI models work off natural language, not a fixed
+  # vocabulary). False = legacy full normalization, kept for the
+  # raw-vs-cleaned A/B comparison in evaluate_nlp.py --text-col.
+
+llm:
+  provider: "groq"
+  model: "llama-3.3-70b-versatile"
+  temperature: 0.3
+  max_history_turns: 6   # last 3 exchanges sent as context
+  max_retries: 4         # exponential backoff (2**attempt) on failure
+  # response_format is fixed as {"type": "json_object"} in
+  # response_generator.py, not exposed here — the parsing code
+  # (json.loads(raw)) has a hard structural dependency on it, so it's
+  # not a safely tunable value.
+  # max_tokens: not set in code — Groq's own default applies.

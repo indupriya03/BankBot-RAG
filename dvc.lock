@@ -1,0 +1,388 @@
+schema: '2.0'
+stages:
+  clean:
+    cmd: python src/data/data_cleaning.py
+    deps:
+    - path: data/raw/01_support_tickets.csv
+      hash: md5
+      md5: cdeaeb64a4b8c760bd4a0ce9dd38b57c
+      size: 61920
+    - path: data/raw/02_transactions.csv
+      hash: md5
+      md5: af49904decaf6a3eb84af6de211ac9ac
+      size: 225578
+    - path: data/raw/04_qa_pairs.json
+      hash: md5
+      md5: 8614e6e01020c88a2df612e63bf39d29
+      size: 10816
+    - path: data/raw/policy_docs
+      hash: md5
+      md5: de403d584c474208c79c9b934a84cb0e.dir
+      size: 14789
+      nfiles: 5
+    - path: src/data/data_cleaning.py
+      hash: md5
+      md5: f66a78e7b25210c60d4d3b7713a38b3c
+      size: 12321
+    outs:
+    - path: data/cleaned/01_support_tickets_cleaned.csv
+      hash: md5
+      md5: 48454819caa22effbf691bbed7e08f13
+      size: 61689
+    - path: data/cleaned/02_transactions_cleaned.csv
+      hash: md5
+      md5: 3674d2660e587668ccd236c2aea5a39d
+      size: 223577
+    - path: data/cleaned/04_qa_pairs_cleaned.json
+      hash: md5
+      md5: 8614e6e01020c88a2df612e63bf39d29
+      size: 10816
+    - path: data/cleaned/policy_docs
+      hash: md5
+      md5: ed3bd80df1da563931bcb920d69cbd1c.dir
+      size: 14784
+      nfiles: 5
+  preprocess_tickets:
+    cmd: python src/data/preprocessing_tickets.py
+    deps:
+    - path: data/cleaned/01_support_tickets_cleaned.csv
+      hash: md5
+      md5: 48454819caa22effbf691bbed7e08f13
+      size: 61689
+    - path: src/data/preprocessing_tickets.py
+      hash: md5
+      md5: bc2cd74bbd756807d377f3253fac5195
+      size: 4349
+    outs:
+    - path: data/preprocessed/support_tickets_clean.csv
+      hash: md5
+      md5: e59df4ec16988e3ae643950a1f6992cb
+      size: 109671
+    - path: data/preprocessed/tickets_eval_unique.csv
+      hash: md5
+      md5: 71da90eb243966de24f7fbcf90c9a6db
+      size: 37566
+  preprocess_transactions:
+    cmd: python src/data/preprocessing_transactions.py
+    deps:
+    - path: data/cleaned/02_transactions_cleaned.csv
+      hash: md5
+      md5: 3674d2660e587668ccd236c2aea5a39d
+      size: 223577
+    - path: src/data/preprocessing_transactions.py
+      hash: md5
+      md5: 4792775990705412a308bd3e4f0f4a7b
+      size: 12191
+    params:
+      params.yaml:
+        data.transactions_random_state: 42
+        data.transactions_test_size: 0.2
+    outs:
+    - path: data/preprocessed/scaler_transactions.pkl
+      hash: md5
+      md5: 3f118781ade80838baeb491eae2bd29a
+      size: 927
+    - path: data/preprocessed/transaction_feature_cols.json
+      hash: md5
+      md5: af0d3abd08443b372c1b5c282c0267ad
+      size: 88
+    - path: data/preprocessed/transactions_test.csv
+      hash: md5
+      md5: a7ec30e3b016c453f5b849bcc5b39191
+      size: 27720
+    - path: data/preprocessed/transactions_train_smote.csv
+      hash: md5
+      md5: 87d4c0086da960262890562d05b41d0d
+      size: 181591
+  preprocess_rag:
+    cmd: python src/data/preprocessing_rag.py
+    deps:
+    - path: data/cleaned/04_qa_pairs_cleaned.json
+      hash: md5
+      md5: 8614e6e01020c88a2df612e63bf39d29
+      size: 10816
+    - path: data/cleaned/policy_docs
+      hash: md5
+      md5: ed3bd80df1da563931bcb920d69cbd1c.dir
+      size: 14784
+      nfiles: 5
+    - path: src/data/preprocessing_rag.py
+      hash: md5
+      md5: 920d29fe77901e3eb690835938ca9478
+      size: 7325
+    params:
+      params.yaml:
+        rag.chunk_size: 1500
+        rag.overlap: 200
+    outs:
+    - path: data/preprocessed/policy_chunks.json
+      hash: md5
+      md5: c84e7c5d03c511b60b25d12be5657f61
+      size: 18849
+    - path: data/preprocessed/qa_chunks.json
+      hash: md5
+      md5: 607c6639a8d639122dde075155d76998
+      size: 12836
+    - path: data/preprocessed/rag_master_chunks.json
+      hash: md5
+      md5: d9818be76fdeddb390d435e27c96e0b6
+      size: 31683
+  evaluate_nlp:
+    cmd: python src/nlp/evaluate_nlp.py --eval-file 
+      data/preprocessed/tickets_eval_unique.csv
+    deps:
+    - path: data/preprocessed/tickets_eval_unique.csv
+      hash: md5
+      md5: 71da90eb243966de24f7fbcf90c9a6db
+      size: 37566
+    - path: src/nlp/evaluate_nlp.py
+      hash: md5
+      md5: 5da5f09da3b35fd7489457f0618292fb
+      size: 10440
+    - path: src/nlp/intent_classifier.py
+      hash: md5
+      md5: 937640d9d15e0f74dde558d153ffb84f
+      size: 4503
+    - path: src/nlp/sentiment_analyzer.py
+      hash: md5
+      md5: 77c71f5c4a2974d92951c678474eb1c2
+      size: 4105
+    outs:
+    - path: reports/nlp_eval/intent_classification_report.txt
+      hash: md5
+      md5: 08bfc513d7066032e43427d401948731
+      size: 482
+    - path: reports/nlp_eval/intent_confusion_matrix.png
+      hash: md5
+      md5: df7590bb81826f42b7a74fcc195af166
+      size: 45923
+    - path: reports/nlp_eval/metrics.json
+      hash: md5
+      md5: d11ea045c582753124fcd1c402a68bf7
+      size: 371
+  train_fraud_models:
+    cmd: python src/risk/train_model.py --model all
+    deps:
+    - path: data/preprocessed/transaction_feature_cols.json
+      hash: md5
+      md5: af0d3abd08443b372c1b5c282c0267ad
+      size: 88
+    - path: data/preprocessed/transactions_train_smote.csv
+      hash: md5
+      md5: 87d4c0086da960262890562d05b41d0d
+      size: 181591
+    - path: src/risk/train_model.py
+      hash: md5
+      md5: efe965982f70470d6df9bc543b319be3
+      size: 5672
+    params:
+      params.yaml:
+        fraud_classifier.random_state: 42
+    outs:
+    - path: models/fraud/lightgbm_fraud_model.pkl
+      hash: md5
+      md5: 8e25b889cfde1361e304f62815e21526
+      size: 588676
+    - path: models/fraud/logistic_regression_fraud_model.pkl
+      hash: md5
+      md5: e947b7b80591d782be0dad86026e82dc
+      size: 1231
+    - path: models/fraud/random_forest_fraud_model.pkl
+      hash: md5
+      md5: 6fe4c4a5f321b8200a66aaefcb10ffed
+      size: 2127065
+    - path: models/fraud/xgboost_fraud_model.pkl
+      hash: md5
+      md5: 81d78ad60660cd7de90c06c06729b3ec
+      size: 380980
+  evaluate_fraud_models:
+    cmd: python src/risk/evaluate_model.py --model all
+    deps:
+    - path: data/preprocessed/transaction_feature_cols.json
+      hash: md5
+      md5: af0d3abd08443b372c1b5c282c0267ad
+      size: 88
+    - path: data/preprocessed/transactions_test.csv
+      hash: md5
+      md5: a7ec30e3b016c453f5b849bcc5b39191
+      size: 27720
+    - path: models/fraud/lightgbm_fraud_model.pkl
+      hash: md5
+      md5: 8e25b889cfde1361e304f62815e21526
+      size: 588676
+    - path: models/fraud/logistic_regression_fraud_model.pkl
+      hash: md5
+      md5: e947b7b80591d782be0dad86026e82dc
+      size: 1231
+    - path: models/fraud/random_forest_fraud_model.pkl
+      hash: md5
+      md5: 6fe4c4a5f321b8200a66aaefcb10ffed
+      size: 2127065
+    - path: models/fraud/xgboost_fraud_model.pkl
+      hash: md5
+      md5: 81d78ad60660cd7de90c06c06729b3ec
+      size: 380980
+    - path: src/risk/evaluate_model.py
+      hash: md5
+      md5: f8c02e20b3154e777d7e6c575c1f4c60
+      size: 11514
+    params:
+      params.yaml:
+        risk_thresholds.high: 0.7
+        risk_thresholds.medium: 0.3
+    outs:
+    - path: reports/fraud_eval/lightgbm_confusion_matrix.png
+      hash: md5
+      md5: 120266e9472414b5d9b82b29bd8e2990
+      size: 29901
+    - path: reports/fraud_eval/lightgbm_feature_importance.png
+      hash: md5
+      md5: bc7c0b0757c3add7ac03bbc6838a9429
+      size: 29108
+    - path: reports/fraud_eval/lightgbm_metrics.json
+      hash: md5
+      md5: 93c8c6206bef058e523b3a32c0343932
+      size: 565
+    - path: reports/fraud_eval/lightgbm_risk_tier_validation.png
+      hash: md5
+      md5: d6f2463c2dc24628b36c112853f8112c
+      size: 26495
+    - path: reports/fraud_eval/logistic_regression_confusion_matrix.png
+      hash: md5
+      md5: 7370894920d538cc3948a3ebb7faa321
+      size: 31176
+    - path: reports/fraud_eval/logistic_regression_feature_importance.png
+      hash: md5
+      md5: 879a94f1212701a3d2f6cc414be25751
+      size: 28229
+    - path: reports/fraud_eval/logistic_regression_metrics.json
+      hash: md5
+      md5: b0b950df8a6dba65a1934a164b12a3ff
+      size: 553
+    - path: reports/fraud_eval/logistic_regression_risk_tier_validation.png
+      hash: md5
+      md5: 9fcc006d06777a30c764bde5c6421263
+      size: 26571
+    - path: reports/fraud_eval/model_comparison.csv
+      hash: md5
+      md5: c8ea1bba3bef9a6a871cdf4fac4ace60
+      size: 459
+    - path: reports/fraud_eval/random_forest_confusion_matrix.png
+      hash: md5
+      md5: 4dbc3d9b6244b3bd5ebb09d5d1679458
+      size: 31298
+    - path: reports/fraud_eval/random_forest_feature_importance.png
+      hash: md5
+      md5: d122efe1ed65aaf1cb880a44afb37458
+      size: 30262
+    - path: reports/fraud_eval/random_forest_metrics.json
+      hash: md5
+      md5: b9ed6a3e50081217cd02fad00c4594ef
+      size: 571
+    - path: reports/fraud_eval/random_forest_risk_tier_validation.png
+      hash: md5
+      md5: b922ca5c18c24166dc413dee924c09ae
+      size: 25939
+    - path: reports/fraud_eval/xgboost_confusion_matrix.png
+      hash: md5
+      md5: 289465f0cf63042b175dd498c1d94144
+      size: 29389
+    - path: reports/fraud_eval/xgboost_feature_importance.png
+      hash: md5
+      md5: ec8903a0eb9313b6af8218eee5d8c57d
+      size: 29602
+    - path: reports/fraud_eval/xgboost_metrics.json
+      hash: md5
+      md5: e43bb1e2a69fc1e39a7654a849aa3961
+      size: 562
+    - path: reports/fraud_eval/xgboost_risk_tier_validation.png
+      hash: md5
+      md5: 013f5f3a4de18790387e767701c87195
+      size: 26416
+  select_best_fraud_model:
+    cmd: python src/risk/select_best_model.py --metric pr_auc
+    deps:
+    - path: models/fraud/lightgbm_fraud_model.pkl
+      hash: md5
+      md5: 8e25b889cfde1361e304f62815e21526
+      size: 588676
+    - path: models/fraud/logistic_regression_fraud_model.pkl
+      hash: md5
+      md5: e947b7b80591d782be0dad86026e82dc
+      size: 1231
+    - path: models/fraud/random_forest_fraud_model.pkl
+      hash: md5
+      md5: 6fe4c4a5f321b8200a66aaefcb10ffed
+      size: 2127065
+    - path: models/fraud/xgboost_fraud_model.pkl
+      hash: md5
+      md5: 81d78ad60660cd7de90c06c06729b3ec
+      size: 380980
+    - path: reports/fraud_eval/model_comparison.csv
+      hash: md5
+      md5: c8ea1bba3bef9a6a871cdf4fac4ace60
+      size: 459
+    - path: src/risk/select_best_model.py
+      hash: md5
+      md5: 43cac1ef98aa0403c8fe177dd94e60e9
+      size: 8232
+    outs:
+    - path: models/fraud/production/production_fraud_model.pkl
+      hash: md5
+      md5: 81d78ad60660cd7de90c06c06729b3ec
+      size: 380980
+    - path: models/fraud/production/production_model_metadata.json
+      hash: md5
+      md5: 7664dd2567e9fec8be9e9fca82071b7f
+      size: 1204
+  build_vector_store:
+    cmd: python src/rag/build_vector_store.py
+    deps:
+    - path: data/preprocessed/rag_master_chunks.json
+      hash: md5
+      md5: d9818be76fdeddb390d435e27c96e0b6
+      size: 31683
+    - path: src/rag/build_vector_store.py
+      hash: md5
+      md5: beddadf87219eabc7e2e5022e81a667d
+      size: 3658
+    - path: src/rag/gemini_embeddings.py
+      hash: md5
+      md5: e3420e1bbcbf45d6fae88276c76abe3d
+      size: 4706
+    params:
+      params.yaml:
+        rag.embedding_batch_size: 100
+        rag.embedding_model: gemini-embedding-001
+        rag.embedding_output_dim: 768
+    outs:
+    - path: data/vector_store/chroma_db
+      hash: md5
+      md5: 3653db1049300152edec1bd7995ea7f2.dir
+      size: 981156
+      nfiles: 5
+  evaluate_retrieval:
+    cmd: python src/eval/eval_retrieval.py --golden src/eval/golden_queries.json
+      --mlflow --experiment rag-retrieval-eval
+    deps:
+    - path: data/vector_store/chroma_db
+      hash: md5
+      md5: de4656d73934f017071c237363b9b486.dir
+      size: 981156
+      nfiles: 5
+    - path: src/eval/eval_retrieval.py
+      hash: md5
+      md5: a470cd410e61f7971709f4b28119fc4c
+      size: 9302
+    - path: src/eval/golden_queries.json
+      hash: md5
+      md5: a43ae9f9cc0e0d0b5812a00204d686ea
+      size: 3980
+    - path: src/rag/retriever.py
+      hash: md5
+      md5: a083aa8d29e3224933983268e2ea3f64
+      size: 5352
+    params:
+      params.yaml:
+        rag.min_policy_results: 1
+        rag.top_k: 5

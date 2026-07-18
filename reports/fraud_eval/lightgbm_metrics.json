@@ -1,0 +1,24 @@
+{
+  "model": "lightgbm",
+  "threshold": 0.5,
+  "precision": 0.6981132075471698,
+  "recall": 0.7551020408163265,
+  "f1": 0.7254901960784313,
+  "roc_auc": 0.943019943019943,
+  "pr_auc": 0.8600920100163235,
+  "n_test": 400,
+  "test_fraud_rate": 0.1225,
+  "risk_tier_validation": {
+    "mean": {
+      "Low": 0.029411764705882353,
+      "Medium": 0.11764705882352941,
+      "High": 0.8604651162790697
+    },
+    "count": {
+      "Low": 340,
+      "Medium": 17,
+      "High": 43
+    }
+  },
+  "note": "Evaluated on transactions_test.csv (real, untouched distribution)."
+}

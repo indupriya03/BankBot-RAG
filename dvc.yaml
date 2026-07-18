@@ -1,0 +1,188 @@
+stages:
+  clean:
+    cmd: python src/data/data_cleaning.py
+    deps:
+      - src/data/data_cleaning.py
+      - data/raw/01_support_tickets.csv
+      - data/raw/02_transactions.csv
+      - data/raw/04_qa_pairs.json
+      - data/raw/policy_docs
+    outs:
+      - data/cleaned/01_support_tickets_cleaned.csv
+      - data/cleaned/02_transactions_cleaned.csv
+      - data/cleaned/04_qa_pairs_cleaned.json
+      - data/cleaned/policy_docs
+
+  preprocess_tickets:
+    cmd: python src/data/preprocessing_tickets.py
+    deps:
+      - src/data/preprocessing_tickets.py
+      - data/cleaned/01_support_tickets_cleaned.csv
+    outs:
+      - data/preprocessed/tickets_eval_unique.csv
+      - data/preprocessed/support_tickets_clean.csv
+
+  preprocess_transactions:
+    cmd: python src/data/preprocessing_transactions.py
+    deps:
+      - src/data/preprocessing_transactions.py
+      - data/cleaned/02_transactions_cleaned.csv
+    params:
+      - data.transactions_test_size
+      - data.transactions_random_state
+    outs:
+      - data/preprocessed/transactions_train_smote.csv
+      - data/preprocessed/transactions_test.csv
+      - data/preprocessed/scaler_transactions.pkl
+      - data/preprocessed/transaction_feature_cols.json
+
+  preprocess_rag:
+    cmd: python src/data/preprocessing_rag.py
+    deps:
+      - src/data/preprocessing_rag.py
+      - data/cleaned/04_qa_pairs_cleaned.json
+      - data/cleaned/policy_docs
+    params:
+      - rag.chunk_size
+      - rag.overlap
+    outs:
+      - data/preprocessed/qa_chunks.json
+      - data/preprocessed/policy_chunks.json
+      - data/preprocessed/rag_master_chunks.json
+
+  evaluate_nlp:
+    cmd: python src/nlp/evaluate_nlp.py
+         --eval-file data/preprocessed/tickets_eval_unique.csv
+    deps:
+      - src/nlp/evaluate_nlp.py
+      - src/nlp/intent_classifier.py
+      - src/nlp/sentiment_analyzer.py
+      - data/preprocessed/tickets_eval_unique.csv
+    outs:
+      - reports/nlp_eval/intent_confusion_matrix.png
+      - reports/nlp_eval/intent_classification_report.txt
+    metrics:
+      - reports/nlp_eval/metrics.json:
+          cache: false
+    desc: >
+      Evaluates intent classifier only. Sentiment evaluation skipped —
+      53% label inconsistency detected in synthetic dataset.
+      Sentiment uses zero-shot inference with 3 merged classes
+      (Urgent/Negative/Neutral) at inference time only.
+
+  # ── Fraud / risk pipeline ─────────────────────────────────────────────
+
+  train_fraud_models:
+    cmd: python src/risk/train_model.py --model all
+    deps:
+      - src/risk/train_model.py
+      - data/preprocessed/transactions_train_smote.csv
+      - data/preprocessed/transaction_feature_cols.json
+    params:
+      - fraud_classifier.random_state
+    outs:
+      - models/fraud/random_forest_fraud_model.pkl
+      - models/fraud/logistic_regression_fraud_model.pkl
+      - models/fraud/xgboost_fraud_model.pkl
+      - models/fraud/lightgbm_fraud_model.pkl
+    desc: >
+      Trains all 4 fraud models on SMOTE-balanced data. Fitting is
+      deliberately separated from evaluation (evaluate_fraud_models,
+      below) — this is the expensive, "shouldn't rerun casually" stage.
+
+  evaluate_fraud_models:
+    cmd: python src/risk/evaluate_model.py --model all
+    deps:
+      - src/risk/evaluate_model.py
+      - models/fraud/random_forest_fraud_model.pkl
+      - models/fraud/logistic_regression_fraud_model.pkl
+      - models/fraud/xgboost_fraud_model.pkl
+      - models/fraud/lightgbm_fraud_model.pkl
+      - data/preprocessed/transactions_test.csv
+      - data/preprocessed/transaction_feature_cols.json
+    params:
+      - risk_thresholds.high
+      - risk_thresholds.medium
+    outs:
+      - reports/fraud_eval/random_forest_confusion_matrix.png
+      - reports/fraud_eval/random_forest_feature_importance.png
+      - reports/fraud_eval/random_forest_risk_tier_validation.png
+      - reports/fraud_eval/logistic_regression_confusion_matrix.png
+      - reports/fraud_eval/logistic_regression_feature_importance.png
+      - reports/fraud_eval/logistic_regression_risk_tier_validation.png
+      - reports/fraud_eval/xgboost_confusion_matrix.png
+      - reports/fraud_eval/xgboost_feature_importance.png
+      - reports/fraud_eval/xgboost_risk_tier_validation.png
+      - reports/fraud_eval/lightgbm_confusion_matrix.png
+      - reports/fraud_eval/lightgbm_feature_importance.png
+      - reports/fraud_eval/lightgbm_risk_tier_validation.png
+    metrics:
+      - reports/fraud_eval/random_forest_metrics.json:
+          cache: false
+      - reports/fraud_eval/logistic_regression_metrics.json:
+          cache: false
+      - reports/fraud_eval/xgboost_metrics.json:
+          cache: false
+      - reports/fraud_eval/lightgbm_metrics.json:
+          cache: false
+      - reports/fraud_eval/model_comparison.csv:
+          cache: false
+    desc: >
+      Scores all 4 trained models on the untouched, real-distribution
+      test split. Ranked by PR-AUC (not accuracy) since fraud is rare —
+      see plot_risk_tier_separation() for a further sanity check.
+
+  select_best_fraud_model:
+    cmd: python src/risk/select_best_model.py --metric pr_auc
+    deps:
+      - src/risk/select_best_model.py
+      - reports/fraud_eval/model_comparison.csv
+      - models/fraud/random_forest_fraud_model.pkl
+      - models/fraud/logistic_regression_fraud_model.pkl
+      - models/fraud/xgboost_fraud_model.pkl
+      - models/fraud/lightgbm_fraud_model.pkl
+    outs:
+      - models/fraud/production/production_fraud_model.pkl
+      - models/fraud/production/production_model_metadata.json
+    desc: >
+      Promotes the PR-AUC winner to models/fraud/production/, which
+      transaction_risk_lookup.py loads by default. Also tags the
+      winning MLflow run as production=true on DagsHub (side effect,
+      not a tracked DVC output — that's a remote API call, not a file).
+
+  # ── RAG pipeline ──────────────────────────────────────────────────────
+
+  build_vector_store:
+    cmd: python src/rag/build_vector_store.py
+    deps:
+      - src/rag/build_vector_store.py
+      - src/rag/gemini_embeddings.py
+      - data/preprocessed/rag_master_chunks.json
+    params:
+      - rag.embedding_model
+      - rag.embedding_output_dim
+      - rag.embedding_batch_size
+    outs:
+      - data/vector_store/chroma_db
+
+  evaluate_retrieval:
+    cmd: python src/eval/eval_retrieval.py
+         --golden src/eval/golden_queries.json
+         --mlflow --experiment rag-retrieval-eval
+    deps:
+      - src/eval/eval_retrieval.py
+      - src/rag/retriever.py
+      - src/eval/golden_queries.json
+      - data/vector_store/chroma_db
+    params:
+      - rag.top_k
+      - rag.min_policy_results
+    desc: >
+      Offline recall@k/precision@k/MRR against the 13-query hand-labeled
+      gold set (see src/eval/coverage_gaps.md for known coverage gaps in
+      the other 16 sampled queries with no matching source chunk yet).
+      No local metrics file is written currently — results only print to
+      console and log to MLflow/DagsHub. Consider adding a
+      reports/rag_eval/metrics.json output here so `dvc metrics show`
+      can track this alongside the fraud/NLP metrics — flagging as a
+      follow-up, not doing it in this pass.

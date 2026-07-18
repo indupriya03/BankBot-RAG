@@ -222,7 +222,7 @@ data/.DS_Store
 # DVC managed data (tracked by DVC, not git)
 data/raw/
 data/cleaned/
-data/processed/
+data/preprocessed/
 
 # ML models and vector store (large files)
 models/
@@ -233,3 +233,4 @@ mlruns/
 mlflow.db
 .vscode/
 extras/
+.dvc/config.local
