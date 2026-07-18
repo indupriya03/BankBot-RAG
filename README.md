@@ -7,7 +7,11 @@
 > A retrieval-augmented banking support chatbot that answers customer queries, scores transactions for fraud in real time, and executes simulated banking actions (card blocks, escalations) through a single-confirmation conversational flow — combining a 4-way intent classifier, a 4-model fraud comparison, and a grounded RAG pipeline into one orchestrated system.
 
 ---
+🎬 Demo
 
+https://github.com/indupriya03/BankBot-RAG/blob/main/assets/demo.mp4
+
+---
 ## 🏆 Highlights
 
 | | |
