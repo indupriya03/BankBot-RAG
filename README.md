@@ -169,11 +169,62 @@ Overall accuracy: 0.89   |   Macro-F1: 0.85
 ### Retrieval Evaluation (13 hand-labeled gold queries)
 
 ```
-MRR: 0.923   |   Recall@3/5/10: 1.0 (all)   |   Precision@3: 0.33, @5: 0.22, @10: 0.11
+MRR: 0.910   |   Recall@3/5/10: 1.0 (all)   |   Precision@3: 0.33, @5: 0.22, @10: 0.11
 ```
 
-> Recall stays perfect while precision falls as k grows — expected given each gold query has ~1 correct chunk out of 33 total. n=13 is small; treated as directional, not a robust statistic.
+> Recall stays perfect while precision falls as k grows — expected given each gold query has ~1 correct chunk out of 34 total. n=13 is small; treated as directional, not a robust statistic. One gold query originally had no matching chunk at all (see Generation Evaluation below) — QA021 was added specifically to close that gap, which is why the corpus grew from 33 to 34 documents mid-project.
 
+### Generation Evaluation (faithfulness, holding retrieval constant)
+
+Retrieval evaluation checks whether the right chunk gets *found*. This
+checks a different question: given the *correct* chunk, does the LLM's
+answer stay faithful to it? For each of the 13 gold queries, the true
+gold chunk is fetched directly by ID (not via a fresh retrieval) and fed
+to `generate_response()`, then an LLM-judge checks whether every claim in
+the response is actually supported by that chunk.
+
+```
+Faithfulness rate      : 76.92%
+Answers-question rate  : 61.54%
+Citation accuracy rate : 100%   (was 92.31% before a prompt fix — see below)
+```
+
+**Two distinct causes found, not one:**
+
+1. **A real coverage gap.** "How do I check my loan application status?"
+   had no matching source content at all — the closest available chunk
+   (`qa_QA009`, about rejection reasons) caused the LLM to invent a
+   plausible-sounding but fabricated answer. Fixed by adding `qa_QA021`,
+   a real QA pair covering status tracking, and re-verified: retrieval
+   now correctly surfaces it — but the generation still hallucinated on
+   this query even with the correct chunk (see #2), showing the two
+   failure modes are independent and both needed addressing.
+
+2. **LLM over-elaboration, independent of retrieval quality.** Loan-related
+   queries with *genuinely correct* context still had the model inventing
+   specific, checkable details not in the source (an invented "last 4
+   digits" verification step, a fabricated "manual review" offer, a
+   fabricated toll-free number). A `SYSTEM_PROMPT` rule was added
+   explicitly warning against inventing specific/checkable details.
+   Result: fabricated content became visibly vaguer and less risky
+   (specific invented procedures disappeared), but the binary faithfulness
+   rate didn't move — a strict pass/fail judge doesn't distinguish
+   "invented a phone number" from "added a generic empathetic filler
+   line," so the improvement is real but not visible in this metric.
+   Documented as a known limitation of binary faithfulness scoring, not
+   treated as "the fix didn't work."
+
+**Also found and fixed:** the LLM was citing in-document section numbers
+(e.g. `"4.5"` from `"4.5 Business Loan"` inside a policy chunk) as if they
+were `chunk_id`s. Tightening the `grounded_in` instruction in
+`SYSTEM_PROMPT` to require exact `chunk_id=` values took citation accuracy
+from 92.31% → 100%.
+
+---
+> Retrieval quality and generation faithfulness are genuinely separate
+> properties — a system can retrieve perfectly and still hallucinate, and
+> fixing a data gap doesn't automatically fix a model's tendency to
+> embellish. n=13 here too; directional, not a robust statistic.
 ---
 
 ## 🔬 Key ML Engineering Decisions
@@ -279,9 +330,8 @@ Synthetic banking dataset (HCL GUVI course project data).
 |---|---|---|
 | Support Tickets | 200 (66 unique after dedup) | 4 categories, 0% label inconsistency on `category`, 53% on `sentiment` |
 | Transactions | 2,000 | 12.2% fraud rate; fraud amounts average ~18x legitimate ones |
-| QA Pairs | 20 | Structured with `policy_ref`, `suggested_action`, `risk_level` |
-| Policy Docs | 4 files | Chunked into 13 policy chunks + 20 QA chunks = 33 total retrieval documents |
-
+| QA Pairs | 21 | Structured with `policy_ref`, `suggested_action`, `risk_level`; QA021 added mid-project to close a documented retrieval coverage gap |
+| Policy Docs | 4 files | Chunked into 13 policy chunks + 21 QA chunks = 34 total retrieval documents |
 ---
 
 ## 👤 Author

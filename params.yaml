@@ -52,7 +52,7 @@ tickets_preprocessing:
 llm:
   provider: "groq"
   model: "llama-3.3-70b-versatile"
-  temperature: 0.3
+  temperature: 0.1
   max_history_turns: 6   # last 3 exchanges sent as context
   max_retries: 4         # exponential backoff (2**attempt) on failure
   # response_format is fixed as {"type": "json_object"} in

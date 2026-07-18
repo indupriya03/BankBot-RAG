@@ -1,0 +1,193 @@
+[
+  {
+    "query": "What are the requirements for a car loan?",
+    "faithful": true,
+    "answers_question": true,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "loan_processing_policy_chunk_001"
+    ],
+    "gold_chunks": [
+      "loan_processing_policy_chunk_001"
+    ],
+    "citation_correct": true,
+    "response": "To be eligible for a car loan, you'll need a minimum CIBIL score of 680 and a stable income, with salaried individuals requiring a net take-home of at least \u20b925,000/month and self-employed individuals needing an annual net profit of \u20b93L. You'll also need to provide KYC documents, a bank statement, and salary slips or ITR, depending on your employment type. You can visit any of our branches with these documents to apply for a car loan of up to \u20b950L with a tenure of up to 7 years."
+  },
+  {
+    "query": "I see a transaction I didn't make",
+    "faithful": true,
+    "answers_question": false,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "qa_QA001"
+    ],
+    "gold_chunks": [
+      "qa_QA001"
+    ],
+    "citation_correct": true,
+    "response": "I'm so sorry to hear that you've noticed a transaction you didn't make - I'm here to help you with this. To look into this further, could you please provide me with the transaction ID, amount, and merchant name associated with this transaction, or at least let me know which account or card it's related to? This will help me assess the situation."
+  },
+  {
+    "query": "How do I check my loan application status?",
+    "faithful": false,
+    "answers_question": true,
+    "unsupported_claims": [
+      "If you've been waiting for a while, please let me know and I can offer further assistance."
+    ],
+    "cited_chunks": [
+      "qa_QA021"
+    ],
+    "gold_chunks": [
+      "qa_QA021"
+    ],
+    "citation_correct": true,
+    "response": "I'd be happy to help you with your loan application status. You can easily check the status in the SwiftBank app by navigating to Loans \u2192 Track Application, where you'll find updates on your application. If you've been waiting for a while, please let me know and I can offer further assistance."
+  },
+  {
+    "query": "My salary credit is delayed by 3 days",
+    "faithful": true,
+    "answers_question": true,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "qa_QA016"
+    ],
+    "gold_chunks": [
+      "qa_QA016"
+    ],
+    "citation_correct": true,
+    "response": "I'm here to help with your delayed salary credit. Salary delays can be due to your employer's payroll batch timing or bank holidays, so it's a good idea to check with your HR or payroll team first. If they've processed the payment but the amount hasn't been credited by the end of the day, we can help trace the transaction."
+  },
+  {
+    "query": "I'm unable to login to my net banking account",
+    "faithful": false,
+    "answers_question": false,
+    "unsupported_claims": [
+      "verifying identity via mobile number or email"
+    ],
+    "cited_chunks": [
+      "qa_QA015"
+    ],
+    "gold_chunks": [
+      "qa_QA015"
+    ],
+    "citation_correct": true,
+    "response": "I'm here to help you resolve the issue with accessing your net banking account. To ensure your account's security, I need to verify your identity first. Can you confirm the last 4 digits of your registered mobile number or the email on the account?"
+  },
+  {
+    "query": "Multiple small transactions from my account I don't recognize",
+    "faithful": true,
+    "answers_question": false,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "qa_QA004"
+    ],
+    "gold_chunks": [
+      "qa_QA004"
+    ],
+    "citation_correct": true,
+    "response": "I'm so sorry to hear that you've noticed some suspicious transactions on your account. To help me investigate this further, could you please provide me with the transaction ID, amount, and merchant name associated with these transactions, or at least let me know which account or card they're related to? This will allow me to pull up the details and assess the situation."
+  },
+  {
+    "query": "I can't link my Aadhaar due to name mismatch",
+    "faithful": true,
+    "answers_question": true,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "qa_QA012"
+    ],
+    "gold_chunks": [
+      "qa_QA012"
+    ],
+    "citation_correct": true,
+    "response": "I see you're having trouble linking your Aadhaar due to a name mismatch, and I'm here to help. To resolve this, you'll likely need to visit a physical branch with a gazette notification or court affidavit for name correction, or submit a written request with supporting documents. If you'd prefer to speak with someone directly, you can also call or visit a branch for further assistance."
+  },
+  {
+    "query": "I can't complete video KYC \u2014 the link keeps failing",
+    "faithful": true,
+    "answers_question": true,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "qa_QA020"
+    ],
+    "gold_chunks": [
+      "qa_QA020"
+    ],
+    "citation_correct": true,
+    "response": "I'm so sorry to hear that your video KYC link keeps failing. I'd like to help you troubleshoot - can you try using a well-lit area and ensuring a stable 4G/WiFi connection? If issues persist, we can discuss further steps, such as sending a fresh V-CIP link or visiting a branch for physical KYC. Would you like me to send a new link now?"
+  },
+  {
+    "query": "My account is frozen because of KYC but I submitted documents",
+    "faithful": true,
+    "answers_question": true,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "qa_QA011"
+    ],
+    "gold_chunks": [
+      "qa_QA011"
+    ],
+    "citation_correct": true,
+    "response": "I understand your account is frozen due to a KYC issue, despite submitting your documents. To resolve this, I recommend checking if your documents are pending verification, which can take around 48 hours. If you've submitted online, it's also a good idea to confirm with your nearest branch. If the issue persists, you can also reach out to our helpline for further assistance."
+  },
+  {
+    "query": "I applied for a business loan 3 weeks ago and heard nothing",
+    "faithful": true,
+    "answers_question": true,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "loan_processing_policy_chunk_002"
+    ],
+    "gold_chunks": [
+      "loan_processing_policy_chunk_002"
+    ],
+    "citation_correct": true,
+    "response": "I see you've applied for a business loan and are waiting to hear back - I'm here to help. You can check the status of your application in our app by going to Loans and then Track Application, which is usually the fastest way to get an update. Since it's been three weeks, which is a bit longer than our typical processing time of 7-10 working days, I can offer to flag your application for manual review if you'd like."
+  },
+  {
+    "query": "Why was my loan application rejected?",
+    "faithful": false,
+    "answers_question": false,
+    "unsupported_claims": [
+      "waiting for weeks is longer than typical",
+      "can offer to flag it for manual review"
+    ],
+    "cited_chunks": [
+      "qa_QA009"
+    ],
+    "gold_chunks": [
+      "qa_QA009"
+    ],
+    "citation_correct": true,
+    "response": "I'm here to help with your loan application query. For the most up-to-date information, I recommend checking the status in our app by navigating to Loans and then Track Application. If you've been waiting for weeks, that's longer than typical, and I can offer to flag it for manual review to look into this further - would you like me to proceed with that?"
+  },
+  {
+    "query": "My company account KYC documents were submitted but account is still restricted",
+    "faithful": true,
+    "answers_question": true,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "kyc_policy_chunk_001",
+      "qa_QA011"
+    ],
+    "gold_chunks": [
+      "qa_QA011",
+      "kyc_policy_chunk_001"
+    ],
+    "citation_correct": true,
+    "response": "I understand your company account is restricted despite submitting KYC documents. To resolve this, please ensure all required documents for non-individuals, such as the Certificate of Incorporation and PAN of the entity and all directors/partners, are correctly submitted. If the issue persists, you may want to visit a branch for further verification."
+  },
+  {
+    "query": "What is the status of my home loan application #TKT128276?",
+    "faithful": true,
+    "answers_question": false,
+    "unsupported_claims": [],
+    "cited_chunks": [
+      "qa_QA007"
+    ],
+    "gold_chunks": [
+      "qa_QA007"
+    ],
+    "citation_correct": true,
+    "response": "I'd be happy to help you with your home loan application query. For the most up-to-date status, I recommend checking the Loans section of our app, where you can track your application's progress. If you've been waiting for an unusually long time, I can offer to flag your application for manual review to ensure everything is on track."
+  }
+]

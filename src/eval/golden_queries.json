@@ -18,11 +18,11 @@
     },
     {
       "query": "How do I check my loan application status?",
-      "gold_chunk_ids": ["qa_QA009"],
+      "gold_chunk_ids": ["qa_QA021"],
       "gold_type": "qa",
       "intent": "Loan",
-      "confidence": "partial",
-      "note": "No QA pair exists for a generic status check; qa_QA009 (rejection reasons) is the closest real answer."
+      "confidence": "exact",
+      "note": "Previously a documented coverage gap (see coverage_gaps.md) — qa_QA009 was only a partial match. Added qa_QA021 specifically to close this gap; this entry now tests the real fix."
     },
     {
       "query": "My salary credit is delayed by 3 days",
